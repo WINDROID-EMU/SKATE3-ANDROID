@@ -90,7 +90,7 @@ final class TitleUpdateInstaller {
         installPackage(readLimited(input, -1, null), gameRoot);
     }
 
-    static boolean isInstalled(Path gameRoot) {
+    public static boolean isInstalled(Path gameRoot) {
         try {
             for (Payload payload : PAYLOADS) {
                 Path file = gameRoot.resolve(payload.path);

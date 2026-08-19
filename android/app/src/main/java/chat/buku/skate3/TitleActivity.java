@@ -9,13 +9,23 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 public class TitleActivity extends Activity {
     private static final int REQUEST_ISO = 1001;
+    private File gameDirectory;
+    private File storageRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_title);
+
+        File external = getExternalFilesDir(null);
+        storageRoot = external != null ? external : getFilesDir();
+        gameDirectory = new File(storageRoot, "game");
 
         Button startButton = findViewById(R.id.startButton);
         Button exitButton = findViewById(R.id.exitButton);
@@ -23,7 +33,13 @@ public class TitleActivity extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickIso();
+                if (isGameReady()) {
+                    // Game is already installed, launch directly
+                    launchGame();
+                } else {
+                    // Game not installed, open ISO picker
+                    pickIso();
+                }
             }
         });
 
@@ -33,6 +49,23 @@ public class TitleActivity extends Activity {
                 finish();
             }
         });
+    }
+
+    private boolean isGameReady() {
+        try {
+            Path root = gameDirectory.toPath();
+            return Files.isRegularFile(root.resolve("default.xex")) &&
+                   Files.isRegularFile(root.resolve("data/webkit/EAWebkit.xex")) &&
+                   TitleUpdateInstaller.isInstalled(root);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void launchGame() {
+        Intent intent = new Intent(this, LauncherActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void pickIso() {
