@@ -104,6 +104,12 @@ public class LauncherActivity extends Activity {
         buildInterface();
         refreshInterface();
         checkForAppUpdate(false);
+        
+        // Check if an ISO URI was passed from TitleActivity
+        Uri isoUri = getIntent().getData();
+        if (isoUri != null) {
+            beginIsoInstallation(isoUri);
+        }
     }
 
     @Override
