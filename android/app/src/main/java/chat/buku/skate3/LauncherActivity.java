@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import android.provider.OpenableColumns;
@@ -252,13 +253,8 @@ public class LauncherActivity extends Activity {
         }
 
         if (isExtractionComplete()) {
-            statusText.setText("GAME EXTRACTED");
-            detailText.setText("Finish by downloading the verified 1.7 MB Title Update 3, or select the package yourself.");
-            setButton(primaryButton, "FINISH SETUP AUTOMATICALLY", view -> finishSetupOnline(), true);
-            hide(characterButton);
-            hide(gpuDriverButton);
-            setButton(secondaryButton, "SELECT TITLE UPDATE FILE", view -> pickTitleUpdate(), false);
-            setButton(tertiaryButton, "START OVER", view -> confirmStartOver(), false);
+            // Automatically start Title Update download after ROM extraction
+            finishSetupOnline();
             return;
         }
 
@@ -452,6 +448,14 @@ public class LauncherActivity extends Activity {
             configureAdvancedButton();
             hide(secondaryButton);
             hide(tertiaryButton);
+            
+            // Automatically launch the game after installation completes
+            new Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    launchGame();
+                }
+            }, 2000); // 2 second delay to show completion message
         });
     }
 
